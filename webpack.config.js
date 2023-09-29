@@ -2,7 +2,9 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 module.exports = {
-  entry: "./src/popup.jsx",
+  entry: {
+    popup: "./src/popup.jsx",
+  },
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "[name].js",
@@ -19,8 +21,21 @@ module.exports = {
           },
         },
       },
+      {
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader"],
+      },
+      {
+        test: /\.(png|jpg|jpeg|gif|svg)$/,
+        use: [
+          {
+            loader: "file-loader",
+          },
+        ],
+      },
     ],
   },
+  devtool: "cheap-module-source-map",
   plugins: [
     new HtmlWebpackPlugin({
       template: "./src/popup.html",
