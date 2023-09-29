@@ -4,3 +4,15 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+body {
+  border-radius: 0 0 1em rgb(0 0 0 / 0.7) !important;
+}
+
+img.logo {
+  width: 25px;
+  aspect-ratio: 1 / 1;
+}
+.color {
+  color: #120b48 !important;
+}
