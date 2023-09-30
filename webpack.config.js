@@ -4,6 +4,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 module.exports = {
   entry: {
     popup: "./src/popup.jsx",
+    background: "./src/components/background.js",
   },
   output: {
     path: path.resolve(__dirname, "dist"),
@@ -45,4 +46,8 @@ module.exports = {
       patterns: [{ from: "public" }],
     }),
   ],
+  performance: {
+    maxAssetSize: 500 * 1024, // 500 KiB
+    maxEntrypointSize: 500 * 1024, // 500 KiB
+  },
 };

@@ -7,9 +7,13 @@
     "default_popup": "popup.html",
     "default_icon": "logo.png"
   },
-  "permissions": ["activeTab"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["activeTab", "tabCapture", "desktopCapture"],
+
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self';",
-    "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval'; child-src 'self';"
-  }
+    "extension_pages": "script-src 'self'; object-src 'self'; media-src *"
+  },
+  "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval'; child-src 'self';"
 }

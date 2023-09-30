@@ -33,6 +33,11 @@ const iconStyle = {
   cursor: "pointer",
 };
 function App() {
+  const startRecord = () => {
+    chrome.runtime
+      .connect({ name: "popup" })
+      .postMessage({ action: "startRecording" });
+  };
   return (
     <Box
       sx={{
@@ -56,11 +61,7 @@ function App() {
           </Typography>
         </Flex>
         <Flex>
-          <IoSettingsOutline
-            stroke="#120B48"
-            strokeWidth={2}
-            style={iconStyle}
-          />
+          <IoSettingsOutline style={iconStyle} />
           <LiaTimesCircle style={iconStyle} />
         </Flex>
       </Stack>
@@ -111,14 +112,17 @@ function App() {
       </Box>
       <Box pt={2}>
         <Button
+          onClick={startRecord}
           sx={{
             background: "#120B48",
             paddingBlock: ".8rem !important",
             color: "white !important",
             borderRadius: ".6rem",
+            textTransform: "capitalize",
+            fontWeight: "500",
             "&:hover": {
               color: "white",
-              background: "black",
+              background: "#120B44",
             },
           }}
           fullWidth
