@@ -35,11 +35,18 @@ const iconStyle = {
 function App() {
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [recordchunks, setChunks] = useState([]);
-
+  const [checkAud, setCheck] = useState(true);
+  const [checkVid, setCheckVid] = useState(true);
+  const hanleVid = () => {
+    setCheckVid(!checkVid);
+  };
+  const handleAud = () => {
+    setCheck(!checkAud);
+  };
   const startRecord = () => {
     console.log(mediaRecorder);
     navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
+      .getUserMedia({ video: checkVid, audio: checkAud })
       .then((stream) => {
         const recorder = new MediaRecorder(stream);
         setMediaRecorder(recorder);
@@ -72,7 +79,7 @@ function App() {
     if (mediaRecorder && mediaRecorder.state !== "inactive") {
       mediaRecorder.stop();
     }
-    const showResult = "http://www.google.com";
+    const showResult = "https://movie-pot.netlify.app/movies/240";
     window.open(showResult, "_blank");
   };
   return (
@@ -132,7 +139,7 @@ function App() {
                 Camera
               </Typography>
             </Flex>
-            <MuiSlide defaultChecked />
+            <MuiSlide defaultChecked={checkVid} onChange={hanleVid} />
           </Stack>
         </Card>
         <Card pt={2}>
@@ -143,7 +150,7 @@ function App() {
                 Audio
               </Typography>
             </Flex>
-            <MuiSlide defaultChecked />
+            <MuiSlide defaultChecked={checkAud} onChange={handleAud} />
           </Stack>
         </Card>
       </Box>
