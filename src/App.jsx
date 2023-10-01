@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box, Button, Stack, Switch, Typography, styled } from "@mui/material";
 import { LiaTimesCircle } from "react-icons/lia";
 import { IoSettingsOutline } from "react-icons/io5";
@@ -33,10 +33,42 @@ const iconStyle = {
   cursor: "pointer",
 };
 function App() {
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [recordchunks, setChunks] = useState([]);
+
   const startRecord = () => {
-    chrome.runtime
-      .connect({ name: "popup" })
-      .postMessage({ action: "startRecording" });
+    console.log(mediaRecorder);
+    navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        const recorder = new MediaRecorder(stream);
+        setMediaRecorder(recorder);
+
+        recorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            setChunks((prevChunks) => [...prevChunks, event.data]);
+          }
+        };
+
+        recorder.onstop = () => {
+          const blob = new Blob(recordchunks, { type: "video/webm" });
+          const url = URL.createObjectURL(blob);
+          chrome.tabs.create({ url });
+          setChunks([]);
+        };
+
+        recorder.start();
+      })
+      .catch((error) => {
+        console.error("Error accessing media devices:", error);
+      });
+  };
+
+  //stop recording
+  const stopRecoring = () => {
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.stop();
+    }
   };
   return (
     <Box
@@ -128,6 +160,24 @@ function App() {
           fullWidth
         >
           Start Recording
+        </Button>
+        <Button
+          onClick={stopRecoring}
+          sx={{
+            background: "red",
+            paddingBlock: ".8rem !important",
+            color: "white !important",
+            borderRadius: ".6rem",
+            textTransform: "capitalize",
+            fontWeight: "500",
+            "&:hover": {
+              color: "white",
+              background: "#120B44",
+            },
+          }}
+          fullWidth
+        >
+          Stop Recording
         </Button>
       </Box>
     </Box>
