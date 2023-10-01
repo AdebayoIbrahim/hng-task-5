@@ -6,9 +6,9 @@ import { FiMonitor } from "react-icons/fi";
 import { TiTabsOutline } from "react-icons/ti";
 import { BsCameraVideo } from "react-icons/bs";
 import { AiFillAudio } from "react-icons/ai";
+import { Link } from "react-router-dom";
 import Card from "./components/Card.jsx";
 import Logo from "../public/logo.png";
-
 const Flex = styled(Stack)({
   display: "flex",
   flexDirection: "row",
@@ -50,13 +50,16 @@ function App() {
           }
         };
 
+        // recorder.onstop = () => {
+        //   const blob = new Blob(recordchunks, { type: "video/webm" });
+        //   const blobUrl = URL.createObjectURL(blob);
+
+        //   chrome.tabs.create({ url: blobUrl });
+        //   setChunks([]);
+        // };
         recorder.onstop = () => {
-          const blob = new Blob(recordchunks, { type: "video/webm" });
-          const url = URL.createObjectURL(blob);
-          chrome.tabs.create({ url });
           setChunks([]);
         };
-
         recorder.start();
       })
       .catch((error) => {
@@ -69,6 +72,8 @@ function App() {
     if (mediaRecorder && mediaRecorder.state !== "inactive") {
       mediaRecorder.stop();
     }
+    const showResult = "http://www.google.com";
+    window.open(showResult, "_blank");
   };
   return (
     <Box
@@ -161,10 +166,13 @@ function App() {
         >
           Start Recording
         </Button>
+      </Box>
+      <Box pt={1}>
         <Button
           onClick={stopRecoring}
           sx={{
-            background: "red",
+            textDecoration: "none",
+            background: "rgb(220,5,10)",
             paddingBlock: ".8rem !important",
             color: "white !important",
             borderRadius: ".6rem",
@@ -172,7 +180,7 @@ function App() {
             fontWeight: "500",
             "&:hover": {
               color: "white",
-              background: "#120B44",
+              background: "rgb(220,5,10)",
             },
           }}
           fullWidth
