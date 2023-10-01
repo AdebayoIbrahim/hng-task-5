@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Button, Stack, Switch, Typography, styled } from "@mui/material";
 import { LiaTimesCircle } from "react-icons/lia";
 import { IoSettingsOutline } from "react-icons/io5";
@@ -33,54 +33,50 @@ const iconStyle = {
   cursor: "pointer",
 };
 function App() {
-  const [mediaRecorder, setMediaRecorder] = useState(null);
-  const [recordchunks, setChunks] = useState([]);
   const [checkAud, setCheck] = useState(true);
   const [checkVid, setCheckVid] = useState(true);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [recordedChunks, setRecordedChunks] = useState([]);
   const hanleVid = () => {
     setCheckVid(!checkVid);
   };
   const handleAud = () => {
     setCheck(!checkAud);
   };
-  const startRecord = () => {
-    console.log(mediaRecorder);
-    navigator.mediaDevices
-      .getUserMedia({ video: checkVid, audio: checkAud })
-      .then((stream) => {
-        const recorder = new MediaRecorder(stream);
-        setMediaRecorder(recorder);
 
-        recorder.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            setChunks((prevChunks) => [...prevChunks, event.data]);
-          }
-        };
-
-        // recorder.onstop = () => {
-        //   const blob = new Blob(recordchunks, { type: "video/webm" });
-        //   const blobUrl = URL.createObjectURL(blob);
-
-        //   chrome.tabs.create({ url: blobUrl });
-        //   setChunks([]);
-        // };
-        recorder.onstop = () => {
-          setChunks([]);
-        };
-        recorder.start();
-      })
-      .catch((error) => {
-        console.error("Error accessing media devices:", error);
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: checkVid,
+        audio: checkAud,
       });
+
+      const recorder = new MediaRecorder(stream);
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          setRecordedChunks((prevChunks) => [...prevChunks, event.data]);
+        }
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: "video/webm" });
+        const url = URL.createObjectURL(blob);
+        chrome.tabs.create({ url });
+        setRecordedChunks([]);
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+    } catch (error) {
+      console.error("Error accessing media devices:", error);
+    }
   };
 
-  //stop recording
-  const stopRecoring = () => {
+  const stopRecording = () => {
     if (mediaRecorder && mediaRecorder.state !== "inactive") {
       mediaRecorder.stop();
     }
-    const showResult = "https://movie-pot.netlify.app/movies/240";
-    window.open(showResult, "_blank");
   };
   return (
     <Box
@@ -139,7 +135,7 @@ function App() {
                 Camera
               </Typography>
             </Flex>
-            <MuiSlide defaultChecked={checkVid} onChange={hanleVid} />
+            <MuiSlide checked={checkVid} onChange={hanleVid} />
           </Stack>
         </Card>
         <Card pt={2}>
@@ -150,13 +146,13 @@ function App() {
                 Audio
               </Typography>
             </Flex>
-            <MuiSlide defaultChecked={checkAud} onChange={handleAud} />
+            <MuiSlide checked={checkAud} onChange={handleAud} />
           </Stack>
         </Card>
       </Box>
       <Box pt={2}>
         <Button
-          onClick={startRecord}
+          onClick={startRecording}
           sx={{
             background: "#120B48",
             paddingBlock: ".8rem !important",
@@ -176,7 +172,7 @@ function App() {
       </Box>
       <Box pt={1}>
         <Button
-          onClick={stopRecoring}
+          onClick={stopRecording}
           sx={{
             textDecoration: "none",
             background: "rgb(220,5,10)",

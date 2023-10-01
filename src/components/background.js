@@ -47,3 +47,24 @@ function stopRecording(tabId) {
 }
 
 // chrome://flags/#unsafely-treat-insecure-origin-as-secure
+
+// const sendVideoToExternalAPI = (videoBlob) => {
+//   const formData = new FormData();
+//   formData.append("video", videoBlob, "recorded-video.webm");
+
+//   fetch("https://jsonplaceholder.typicode.com/posts", {
+//     method: "POST",
+//     body: formData,
+//   })
+//     .then((response) => response.json())
+//     .then((data) => {
+//       console.log("JSONPlaceholder API response:", data);
+//       // Handle the response as needed
+//     })
+//     .catch((error) => {
+//       console.error("Error sending video to JSONPlaceholder API:", error);
+//     });
+// };
+
+// const showResult = "https://movie-pot.netlify.app/movies/240";
+// window.open(showResult, "_blank");
