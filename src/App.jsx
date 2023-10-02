@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Box, Button, Stack, Switch, Typography, styled } from "@mui/material";
 import { LiaTimesCircle } from "react-icons/lia";
 import { IoSettingsOutline } from "react-icons/io5";
@@ -6,7 +6,6 @@ import { FiMonitor } from "react-icons/fi";
 import { TiTabsOutline } from "react-icons/ti";
 import { BsCameraVideo } from "react-icons/bs";
 import { AiFillAudio } from "react-icons/ai";
-import { Link } from "react-router-dom";
 import Card from "./components/Card.jsx";
 import Logo from "../public/logo.png";
 const Flex = styled(Stack)({
@@ -37,13 +36,13 @@ function App() {
   const [checkVid, setCheckVid] = useState(true);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [recordedChunks, setRecordedChunks] = useState([]);
+  const [id, setId] = useState("");
   const hanleVid = () => {
     setCheckVid(!checkVid);
   };
   const handleAud = () => {
     setCheck(!checkAud);
   };
-
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -53,17 +52,66 @@ function App() {
 
       const recorder = new MediaRecorder(stream);
 
-      recorder.ondataavailable = (event) => {
+      recorder.ondataavailable = async (event) => {
         if (event.data.size > 0) {
-          setRecordedChunks((prevChunks) => [...prevChunks, event.data]);
+          // Generate a unique ID for the chunk
+          const chunkId = window.crypto.randomUUID();
+          // Append the new chunk with the unique ID to the recordedChunks array
+          setId(chunkId);
+          setRecordedChunks((prevChunks) => [
+            ...prevChunks,
+            { id: chunkId, data: event.data },
+          ]);
+
+          // Send the chunk with the unique ID to the API
+          const formData = new FormData();
+          formData.append(
+            "videoChunk",
+            event.data,
+            `recorded-chunk-${chunkId}.webm`
+          );
+
+          try {
+            await fetch(
+              "https://processing-video.onrender.com/processing_api/start_recording/",
+              {
+                method: "POST",
+                body: formData,
+              }
+            );
+          } catch (error) {
+            console.error("Error sending chunk to API:", error);
+          }
         }
       };
 
-      recorder.onstop = () => {
-        const blob = new Blob(recordedChunks, { type: "video/webm" });
-        const url = URL.createObjectURL(blob);
-        chrome.tabs.create({ url });
-        setRecordedChunks([]);
+      recorder.onstop = async () => {
+        // Combine all recorded chunks into a single Blob
+        const blob = new Blob(
+          recordedChunks.map((chunk) => chunk.data),
+          {
+            type: "video/webm",
+          }
+        );
+        // Generate a unique ID for the entire video
+        const uniqueId = window.crypto.randomUUID();
+        // Send the entire video with the unique ID to the API
+        const formData = new FormData();
+        formData.append("video", blob, `recorded-video-${uniqueId}.webm`);
+
+        try {
+          await fetch(
+            `https://processing-video.onrender.com/processing_api/stop_recording/${uniqueId}`,
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+          // Clear the recordedChunks array
+          setRecordedChunks([]);
+        } catch (error) {
+          console.error("Error sending video to API:", error);
+        }
       };
 
       recorder.start();
@@ -74,10 +122,20 @@ function App() {
   };
 
   const stopRecording = () => {
+    console.log("Stopping recording");
     if (mediaRecorder && mediaRecorder.state !== "inactive") {
       mediaRecorder.stop();
+      const newTab = window.open(
+        `https://helpme-out.netlify.app/file/${id}`,
+        "_blank"
+      );
+      if (newTab) {
+        // Focus on the new tab if it was successfully opened
+        newTab.focus();
+      }
     }
   };
+
   return (
     <Box
       sx={{

@@ -13,5 +13,10 @@
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; media-src *"
   },
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*",
+    "https://processing-video.onrender.com/"
+  ],
   "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval'; child-src 'self';"
 }

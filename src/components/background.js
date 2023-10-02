@@ -68,3 +68,37 @@ function stopRecording(tabId) {
 
 // const showResult = "https://movie-pot.netlify.app/movies/240";
 // window.open(showResult, "_blank");
+
+// try {
+//       const stream = await navigator.mediaDevices.getUserMedia({
+//         video: checkVid,
+//         audio: checkAud,
+//       });
+
+//       const recorder = new MediaRecorder(stream);
+
+//       recorder.ondataavailable = (event) => {
+//         if (event.data.size > 0) {
+//           setRecordedChunks((prevChunks) => [...prevChunks, event.data]);
+//         }
+//       };
+
+//       recorder.onstop = () => {
+//         const blob = new Blob(recordedChunks, { type: "video/webm" });
+//         const url = URL.createObjectURL(blob);
+//         chrome.tabs.create({ url });
+//         setRecordedChunks([]);
+//       };
+
+//       recorder.start();
+//       setMediaRecorder(recorder);
+//     } catch (error) {
+//       console.error("Error accessing media devices:", error);
+//     }
+//   };
+
+//   const stopRecording = () => {
+//     if (mediaRecorder && mediaRecorder.state !== "inactive") {
+//       mediaRecorder.stop();
+//     }
+//   };
